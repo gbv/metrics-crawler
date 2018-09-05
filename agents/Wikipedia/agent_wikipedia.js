@@ -39,7 +39,7 @@ var con = mysql.createConnection({
 
 
 // set log levels
-var log_level = {info: true, errors: true};
+var log_level = {info: false, errors: true};
 
 function log_error(txt){
 	
