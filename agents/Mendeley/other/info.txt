@@ -1,0 +1,3 @@
+https://twitter.com/mendeleyAPI/status/47250684478889984
+
+@jmaicher Rate limit should be 500/hr, not 150 on public methods. Search is 5000

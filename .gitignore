@@ -1,0 +1,9 @@
+/node_modules
+/agents/config.json
+/agents/flogs
+/agents/_doi_agents/ff_profile/*
+/agents/_doi_agents/text_import
+/agents/_doi_agents/tmp/*
+/agents/other
+/agents/Twitter/other
+

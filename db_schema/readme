@@ -1,0 +1,4 @@
+- import this database before using the software, it contains only the schema but no data
+- customize the lines from my.cnf and add them to your mysql config
+
+- insert one row in mb_sys with sysRunning = 1

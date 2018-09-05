@@ -1,0 +1,26 @@
+{
+	"db": {
+		"host": "localhost",
+		"user": "",
+		"password": "",
+		"database": "metrics_bot",
+		"charset": "utf8mb4"
+
+	},
+	"project_root" : "...../metrics_bot",
+	"browser_profile_path": "...../my_ff_profile",
+	"doi_resolver_tmp_path": "...../tmp_folder",
+	"forever_log_path": "...../.forever",
+	"system_tmp": "/tmp",
+	"download_path": "...../downloads",
+	
+	"user_agent_headers": {
+	
+		"wikipedia": "tellWikipediaWhoYouAre",
+		"reddit": "tellRedditWhoYouAre"
+		
+	},
+	
+	"guard_mail_receiver": "yourEmailAddress"
+
+}
