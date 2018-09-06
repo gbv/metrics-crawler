@@ -1,3 +1,7 @@
+# Web Crawler for the project **metrics*
+
+## Installation
+
 - install packages via npm
 - globally install node package "forever"
 
@@ -16,3 +20,16 @@
 - create a /agents/config.json according to /agents/example_config.json and enter your data
 
 - set your environment variables according to /docs/env_template.txt (use your credentials), you can copy the content of /docs/env_template.txt to your .bashrc (home directory, linux)
+
+
+## Using the Bot
+
+- use the following files in /agents (with node):
+	- start_all.js (start bot)
+	- end_all.js (stop bot)
+	- reset_log.js (clear the forever log files)
+	- rem_logs.js (remove the forever log files)
+(for example: node start_all.js)
+
+- only stop the bot with end_all.js (graceful exit)
+- if you want to start single agents manually make sure that the row in the sql table "mb_sys" has a column value of 1 for column "sysRunning"
