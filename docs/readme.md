@@ -26,12 +26,11 @@ Project website: https://metrics-project.net/
 
 ## Using the Bot
 
-- use the following files in /agents (with node):
+- use the following files in /agents (with `node {filename}`):
 	- start_all.js (start bot)
 	- end_all.js (stop bot)
 	- reset_log.js (clear the forever log files)
 	- rem_logs.js (remove the forever log files)
-(for example: node start_all.js)
 
 - only stop the bot with end_all.js (graceful exit)
 - if you want to start single agents manually make sure that the row in the sql table "mb_sys" has a column value of 1 for column "sysRunning"
