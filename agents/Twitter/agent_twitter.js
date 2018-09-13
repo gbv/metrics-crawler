@@ -144,8 +144,7 @@ function crawlTwitter(){
 				wait_till = null;
 			}
 
-			var sql = "SELECT id, doi, url, first_update_twitter, IFNULL(tries_twitter,0) as tries_twitter, highest_id_twitter FROM works WHERE last_update_url_browser is not null ORDER BY last_update_twitter ASC LIMIT 1";
-			//var sql = "SELECT id, doi, url, first_update_twitter, highest_id_twitter FROM works ORDER BY last_update_twitter ASC LIMIT 1";
+			var sql = "SELECT id, doi, url, first_update_twitter, IFNULL(tries_twitter,0) as tries_twitter, highest_id_twitter FROM works WHERE url_crawled = 1 ORDER BY last_update_twitter ASC LIMIT 1";
 
 			con.query(sql, function(err, results, fields){
 
@@ -208,7 +207,7 @@ function crawlTwitter(){
 								return
 							}
 
-							var sql = "SELECT last_update_twitter FROM works ORDER BY last_update_twitter ASC LIMIT 1 OFFSET 100;";
+							var sql = "SELECT last_update_twitter FROM works WHERE url_crawled = 1 ORDER BY last_update_twitter ASC LIMIT 1 OFFSET 100;";
 
 							con.query(sql, null, function(err, results, fields){
 
@@ -265,7 +264,7 @@ function crawlTwitter(){
 
 							log_error(err);
 
-							var sql = "SELECT last_update_twitter FROM works ORDER BY last_update_twitter ASC LIMIT 1 OFFSET 100;";
+							var sql = "SELECT last_update_twitter FROM works WHERE url_crawled = 1 ORDER BY last_update_twitter ASC LIMIT 1 OFFSET 100;";
 
 							con.query(sql, null, function(err, results, fields){
 

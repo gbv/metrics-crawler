@@ -146,7 +146,7 @@ function updateToken(doNext){
 
 function startCycle(){
 	
-	var sql = "SELECT id, url, urls FROM works ORDER BY last_update_reddit ASC LIMIT 1";
+	var sql = "SELECT id, url, urls FROM works WHERE url_crawled = 1 ORDER BY last_update_reddit ASC LIMIT 1";
 
 	con.query(sql, function(err, results, fields){
 

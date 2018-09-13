@@ -33,6 +33,8 @@ var tmp_path = config.doi_resolver_tmp_path;
 // n consecutive timepoints (in minutes, for example 56, 57, 58, 59); killing process should be on last timepoint (set this in kill_processes.js)
 var kill_time = [56, 57, 58, 59];
 
+var firstCrawl = undefined;
+
 var con = mysql.createConnection({
 
 	host: config.db.host,
@@ -407,6 +409,19 @@ function only_update_lu(theTime, id){
 		}
 	});
 	
+	if(url_crawled === 0){
+
+		con.query('UPDATE works SET url_crawled = 1 WHERE id = ?', [id], function(err, res, fields){
+
+			if(err){
+				log_error("MYSQL ERROR\n"+err);
+			}else{
+				log_info("Only updated last_update_url_browser");
+			}
+		});
+		
+	}
+	
 	running = false;
 	
 }
@@ -436,15 +451,28 @@ function handle_url(url_old, url, work_id){
 		
 		var sql = "UPDATE works SET url = ?, last_update_url_browser = ? WHERE id = ?";
 			
-			con.query(sql, [url, theTime , work_id], function(err, results, fields){
-				
+		con.query(sql, [url, theTime , work_id], function(err, results, fields){
+
+			if(err){
+				log_error(err);
+			}else{
+				log_info("UPDATED url works");							
+			}
+			running = false;
+		});
+		
+		if(url_crawled === 0){
+
+			con.query('UPDATE works SET url_crawled = 1 WHERE id = ?', [work_id], function(err, res, fields){
+
 				if(err){
-					log_error(err);
+					log_error("MYSQL ERROR\n"+err);
 				}else{
-					log_info("UPDATED url works");							
+					log_info("Only updated last_update_url_browser");
 				}
-				running = false;
 			});
+
+		}
 		
 		return
 		
@@ -747,7 +775,7 @@ function resolve_doi(){
 	log_info("\n===========================================================\n");
 	log_info("resolve cycle started.\n");
 
-	var sql = `select id, doi, url, committed_doi_resolve from (SELECT id, doi, url, committed_doi_resolve FROM works ORDER BY last_update_url_browser ASC LIMIT ${pool_size_commit}) AS subset order by rand() LIMIT 1`;
+	var sql = `select id, doi, url, committed_doi_resolve, url_crawled from (SELECT id, doi, url, committed_doi_resolve, url_crawled FROM works ORDER BY last_update_url_browser ASC LIMIT ${pool_size_commit}) AS subset order by rand() LIMIT 1`;
 	// Testing queries
 	//var sql = `select id, doi, url, committed_doi_resolve from (SELECT id, doi, committed_doi_resolve FROM works WHERE url IS NULL ORDER BY last_update_url_browser ASC LIMIT 1500) AS subset order by rand() LIMIT 1`;
 	//var sql = "SELECT id, doi, url, committed_doi_resolve FROM works where id = 37137";
@@ -763,6 +791,8 @@ function resolve_doi(){
 			var doi = results[0].doi;
 			
 			var url_old = results[0].url;
+			
+			url_crawled = results[0].url_crawled;
 			
 			var committed = results[0].committed_doi_resolve;
 			

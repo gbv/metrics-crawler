@@ -266,7 +266,7 @@ CREATE TABLE `data_dumps_mendeley` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `work_id` (`work_id`),
   UNIQUE KEY `obj_id` (`obj_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=20334 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20411 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -285,7 +285,7 @@ CREATE TABLE `data_dumps_reddit` (
   `created` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `work_id` (`work_id`,`hash`)
-) ENGINE=InnoDB AUTO_INCREMENT=118 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=120 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -307,7 +307,7 @@ CREATE TABLE `data_dumps_twitter` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `work_id` (`work_id`,`obj_id`),
   KEY `obj_id` (`obj_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10221 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11110 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -325,7 +325,7 @@ CREATE TABLE `data_dumps_wikipedia` (
   `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `wiki` (`wiki`,`work_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1102 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1140 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -344,7 +344,7 @@ CREATE TABLE `data_dumps_youtube` (
   `created` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `work_id` (`work_id`,`hash`)
-) ENGINE=InnoDB AUTO_INCREMENT=1668 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1702 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -565,7 +565,7 @@ CREATE TABLE `urls` (
   `count_youtube` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `work_id` (`work_id`,`hash`)
-) ENGINE=InnoDB AUTO_INCREMENT=2261 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=3706 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -702,7 +702,7 @@ CREATE TABLE `work_meta` (
   `pubYear` smallint(6) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `work_id` (`work_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=26332 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=26333 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -720,6 +720,7 @@ CREATE TABLE `works` (
   `url` text COLLATE utf8mb4_unicode_ci,
   `urls` tinyint(4) DEFAULT '0',
   `committed_doi_resolve` datetime DEFAULT NULL,
+  `url_crawled` tinyint(4) NOT NULL DEFAULT '0',
   `last_update_url_browser` datetime DEFAULT NULL,
   `state` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created` datetime DEFAULT CURRENT_TIMESTAMP,
@@ -744,15 +745,15 @@ CREATE TABLE `works` (
   `highest_id_twitter` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `doi` (`doi`),
-  KEY `last_update_twitter` (`last_update_twitter`),
   KEY `last_update_mendeley` (`last_update_mendeley`),
   KEY `last_update_url_browser` (`last_update_url_browser`),
-  KEY `last_update_facebook` (`last_update_facebook`),
   KEY `state` (`state`),
-  KEY `last_update_reddit` (`last_update_reddit`),
-  KEY `last_update_youtube` (`last_update_youtube`),
-  KEY `last_update_meta` (`last_update_meta`)
-) ENGINE=InnoDB AUTO_INCREMENT=131041 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  KEY `last_update_meta` (`last_update_meta`),
+  KEY `url_crawled` (`url_crawled`,`last_update_twitter`),
+  KEY `url_crawled_2` (`url_crawled`,`last_update_facebook`),
+  KEY `url_crawled_3` (`url_crawled`,`last_update_reddit`),
+  KEY `url_crawled_4` (`url_crawled`,`last_update_youtube`)
+) ENGINE=InnoDB AUTO_INCREMENT=131042 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1178,4 +1179,4 @@ CREATE TABLE `works` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-08-23 14:29:08
+-- Dump completed on 2018-09-13 14:04:33

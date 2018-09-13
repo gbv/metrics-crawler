@@ -62,7 +62,7 @@ function startCycle(){
 		
 		if(shouldRun){
 
-			var sql = "SELECT id, url, urls FROM works ORDER BY last_update_youtube ASC LIMIT 1";
+			var sql = "SELECT id, url, urls FROM works WHERE url_crawled = 1 ORDER BY last_update_youtube ASC LIMIT 1";
 
 			con.query(sql, function(err, results, fields){
 
