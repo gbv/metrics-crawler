@@ -220,7 +220,7 @@ function crawlTwitter(){
 
 										var theTime = new Date();
 
-										sql = "UPDATE works SET last_update_twitter = ?, tries_twitter = 0, state = ? WHERE id = ?";
+										sql = "UPDATE works SET last_update_twitter = ?, tries_twitter = 0, state_twitter = ? WHERE id = ?";
 
 										var values = [theTime, 'TwitterErr: '+errCode, id];
 
@@ -238,7 +238,7 @@ function crawlTwitter(){
 
 										var tries_new = tries_twitter + 1;
 
-										sql = "UPDATE works SET last_update_twitter = ?, tries_twitter = ?, state = ? WHERE id = ?";
+										sql = "UPDATE works SET last_update_twitter = ?, tries_twitter = ?, state_twitter = ? WHERE id = ?";
 
 										var values = [new_lu, tries_new, 'TwitterErr: '+errCode, id];
 
@@ -277,7 +277,7 @@ function crawlTwitter(){
 
 										var theTime = new Date();
 
-										sql = "UPDATE works SET last_update_twitter = ?, tries_twitter = 0, state = ? WHERE id = ?";
+										sql = "UPDATE works SET last_update_twitter = ?, tries_twitter = 0, state_twitter = ? WHERE id = ?";
 
 										var values = [theTime, 'TwitterErr: unknown', id];
 
@@ -295,7 +295,7 @@ function crawlTwitter(){
 
 										var tries_new = tries_twitter + 1;
 
-										sql = "UPDATE works SET last_update_twitter = ?, tries_twitter = ?, state = ? WHERE id = ?";
+										sql = "UPDATE works SET last_update_twitter = ?, tries_twitter = ?, state_twitter = ? WHERE id = ?";
 
 										var values = [new_lu, tries_new, 'TwitterErr: unknown', id];
 
@@ -401,12 +401,12 @@ function crawlTwitter(){
 								if(first_update_twitter == null){
 
 									var options = [unique_count, retweet_count, theTime, theTime, tweets.search_metadata.max_id_str, id];
-									var sql = "UPDATE works SET state = NULL, count_twitter_unique = count_twitter_unique + ?, count_twitter_retweets = count_twitter_retweets + ?, last_update_twitter = ?, tries_twitter = 0, first_update_twitter = ?, highest_id_twitter = ? WHERE id = ?";
+									var sql = "UPDATE works SET state_twitter = NULL, count_twitter_unique = count_twitter_unique + ?, count_twitter_retweets = count_twitter_retweets + ?, last_update_twitter = ?, tries_twitter = 0, first_update_twitter = ?, highest_id_twitter = ? WHERE id = ?";
 
 								}else{
 
 									var options = [unique_count, retweet_count, theTime, tweets.search_metadata.max_id_str, id];
-									var sql = "UPDATE works SET state = NULL, count_twitter_unique = count_twitter_unique + ?, count_twitter_retweets = count_twitter_retweets + ?, last_update_twitter = ?, tries_twitter = 0, highest_id_twitter = ? WHERE id = ?";
+									var sql = "UPDATE works SET state_twitter = NULL, count_twitter_unique = count_twitter_unique + ?, count_twitter_retweets = count_twitter_retweets + ?, last_update_twitter = ?, tries_twitter = 0, highest_id_twitter = ? WHERE id = ?";
 
 								}
 
@@ -415,13 +415,13 @@ function crawlTwitter(){
 								if(first_update_twitter == null){
 
 									var options = [theTime, theTime, tweets.search_metadata.max_id_str, id];
-									var sql = "UPDATE works SET state = NULL, last_update_twitter = ?, tries_twitter = 0, first_update_twitter = ?, highest_id_twitter = ? WHERE id = ?";
+									var sql = "UPDATE works SET state_twitter = NULL, last_update_twitter = ?, tries_twitter = 0, first_update_twitter = ?, highest_id_twitter = ? WHERE id = ?";
 
 
 								}else{
 
 									var options = [theTime, tweets.search_metadata.max_id_str, id];
-									var sql = "UPDATE works SET state = NULL, last_update_twitter = ?, tries_twitter = 0, highest_id_twitter = ? WHERE id = ?";
+									var sql = "UPDATE works SET state_twitter = NULL, last_update_twitter = ?, tries_twitter = 0, highest_id_twitter = ? WHERE id = ?";
 
 								}
 

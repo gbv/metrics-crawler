@@ -266,7 +266,7 @@ CREATE TABLE `data_dumps_mendeley` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `work_id` (`work_id`),
   UNIQUE KEY `obj_id` (`obj_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=20414 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20509 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -285,7 +285,7 @@ CREATE TABLE `data_dumps_reddit` (
   `created` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `work_id` (`work_id`,`hash`)
-) ENGINE=InnoDB AUTO_INCREMENT=121 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=123 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -307,7 +307,7 @@ CREATE TABLE `data_dumps_twitter` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `work_id` (`work_id`,`obj_id`),
   KEY `obj_id` (`obj_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11123 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11920 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -325,7 +325,7 @@ CREATE TABLE `data_dumps_wikipedia` (
   `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `wiki` (`wiki`,`work_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1141 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1158 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -344,7 +344,7 @@ CREATE TABLE `data_dumps_youtube` (
   `created` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `work_id` (`work_id`,`hash`)
-) ENGINE=InnoDB AUTO_INCREMENT=1703 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1755 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -565,23 +565,8 @@ CREATE TABLE `urls` (
   `count_youtube` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `work_id` (`work_id`,`hash`)
-) ENGINE=InnoDB AUTO_INCREMENT=3712 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=4270 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Temporary table structure for view `w_err_NO_DELETE`
---
-
-DROP TABLE IF EXISTS `w_err_NO_DELETE`;
-/*!50001 DROP VIEW IF EXISTS `w_err_NO_DELETE`*/;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-/*!50001 CREATE VIEW `w_err_NO_DELETE` AS SELECT 
- 1 AS `id`,
- 1 AS `doi`,
- 1 AS `url`,
- 1 AS `state`*/;
-SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `wikipedia`
@@ -702,7 +687,7 @@ CREATE TABLE `work_meta` (
   `pubYear` smallint(6) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `work_id` (`work_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=26334 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=26335 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -722,7 +707,7 @@ CREATE TABLE `works` (
   `committed_doi_resolve` datetime DEFAULT NULL,
   `url_crawled` tinyint(4) NOT NULL DEFAULT '0',
   `last_update_url_browser` datetime DEFAULT NULL,
-  `state` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `state_twitter` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created` datetime DEFAULT CURRENT_TIMESTAMP,
   `reaction_count_facebook` int(10) unsigned DEFAULT NULL,
   `comment_count_facebook` int(10) unsigned DEFAULT NULL,
@@ -747,13 +732,13 @@ CREATE TABLE `works` (
   UNIQUE KEY `doi` (`doi`),
   KEY `last_update_mendeley` (`last_update_mendeley`),
   KEY `last_update_url_browser` (`last_update_url_browser`),
-  KEY `state` (`state`),
+  KEY `state` (`state_twitter`),
   KEY `last_update_meta` (`last_update_meta`),
   KEY `url_crawled` (`url_crawled`,`last_update_twitter`),
   KEY `url_crawled_2` (`url_crawled`,`last_update_facebook`),
   KEY `url_crawled_3` (`url_crawled`,`last_update_reddit`),
   KEY `url_crawled_4` (`url_crawled`,`last_update_youtube`)
-) ENGINE=InnoDB AUTO_INCREMENT=131044 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=131045 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -1150,24 +1135,6 @@ DELIMITER ;
 /*!50001 SET collation_connection      = @saved_col_connection */;
 
 --
--- Final view structure for view `w_err_NO_DELETE`
---
-
-/*!50001 DROP VIEW IF EXISTS `w_err_NO_DELETE`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8mb4 */;
-/*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`gbv`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `w_err_NO_DELETE` AS select `works`.`id` AS `id`,`works`.`doi` AS `doi`,`works`.`url` AS `url`,`works`.`state` AS `state` from `works` where (`works`.`state` <> '0') */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
-
---
 -- Final view structure for view `wikipedia_sums`
 --
 
@@ -1194,4 +1161,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-09-14  7:35:05
+-- Dump completed on 2018-10-12  7:29:16
