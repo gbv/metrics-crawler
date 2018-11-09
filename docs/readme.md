@@ -17,6 +17,8 @@ Project website: https://metrics-project.net/
 	- has disk caching disabled (about:config, browser.cache.disk.enable = false)
 	- optionally has an extension installed that sends custom headers so you are not crawling anonymously
 
+- install and set up "geckodriver" for firefox
+
 - check if you are happy with what /agents/_doi_agents/kill_processes.js does
 
 - create a /agents/config.json according to /agents/example_config.json and enter your data
