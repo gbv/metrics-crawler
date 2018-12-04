@@ -16,7 +16,7 @@ if(typeof(client_id) == "undefined" || typeof(client_secret) == "undefined"){
 	throw "credentials not defined"
 }
 
-var cooldown = 30000;
+var cooldown = 31000;
 
 var running = false;
 
