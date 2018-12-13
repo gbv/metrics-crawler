@@ -84,11 +84,16 @@ function crawl(subdom){
 		var work_id = results[0].work_id;
 		var doi = results[0].doi;
 		
-		var doi_esc = encodeURIComponent(doi);
+		if(!doi){
+			log_error("No doi provided. Maybe work is not in works table but in wikipedia table.");
+			return
+		}
 		
+		var doi_esc = encodeURIComponent(doi);
+		var query = 'action=query&list=search&srlimit='+wiki_srlimit+'&srsearch=%22doi:'+doi_esc+'%22&srwhat=text&srprop&srinfo=totalhits&srenablerewrites=0&format=json';
 		var options = {
 	
-			url: 'https://'+subdom+'.wikipedia.org/w/api.php?action=query&list=search&srlimit='+wiki_srlimit+'&srsearch=%22doi:'+doi_esc+'%22&srwhat=text&srprop&srinfo=totalhits&srenablerewrites=0&format=json',
+			url: 'https://'+subdom+'.wikipedia.org/w/api.php?'+query,
 			headers: {
 
 				"User-Agent": config.user_agent_headers.wikipedia
@@ -127,9 +132,9 @@ function crawl(subdom){
 							
 							if(wiki_count > 0){
 							
-								var sql_dump = "INSERT INTO data_dumps_wikipedia (wiki, work_id, data) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE data = ?, created = ?";
+								var sql_dump = "INSERT INTO data_dumps_wikipedia (wiki, work_id, data, query) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE data = ?, query = ?, created = ?";
 
-								con.query(sql_dump, [subdom, work_id, body, body, theTime], function(err, results, fields){
+								con.query(sql_dump, [subdom, work_id, body, query, body, query, theTime], function(err, results, fields){
 
 									if(err){
 										log_error(err);

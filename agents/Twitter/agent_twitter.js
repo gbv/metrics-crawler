@@ -377,11 +377,11 @@ function crawlTwitter(){
 
 									}
 
-									insert_data.push([id, theStatus.id_str, JSON.stringify(theStatus), rt_status, url, new Date(theStatus.created_at)]);
+									insert_data.push([id, theStatus.id_str, JSON.stringify(theStatus), query, rt_status, url, new Date(theStatus.created_at)]);
 
 								}
 
-								var sql_ddump = "INSERT INTO data_dumps_twitter (work_id, obj_id, data, type, search_url, occurred) VALUES ?";
+								var sql_ddump = "INSERT INTO data_dumps_twitter (work_id, obj_id, data, search_term, type, search_url, occurred) VALUES ?";
 
 								con.query(sql_ddump, [insert_data], function(err, results, fields){
 
