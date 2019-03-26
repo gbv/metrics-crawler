@@ -16,7 +16,8 @@ if(typeof(client_id) == "undefined" || typeof(client_secret) == "undefined"){
 	throw "credentials not defined"
 }
 
-var cooldown = 31000;
+var cooldown = 17500;
+var latest_call_counts = [];
 
 var running = false;
 
@@ -53,6 +54,7 @@ function startCycle(){
 	
 	if(running){
 		log_info("running thus no new cycle.");
+        setTimeout(startCycle, cooldown/4);
 		return
 	}else{
 		running = true;
@@ -70,6 +72,7 @@ function startCycle(){
 					// set last_update
 					log_error(err);
 					running = false;
+                    setTimeout(startCycle, cooldown/4);
 					return;
 				}else{
 
@@ -118,6 +121,53 @@ function crawlFacebook(work_id, url, urls){
 	}
 	
 	FB.api(encodeURIComponent(url_http), { fields: ['engagement'], access_token: client_id+"|"+client_secret }, function (res) {
+        
+        try{
+
+            console.log("CD: "+cooldown);
+            console.log(latest_call_counts);
+
+            if(latest_call_counts.length > 15 && res.usage.call_count != 0){
+                
+                var current_call_count = res.usage.call_count;
+                
+                if(current_call_count > 94){
+                    if(current_call_count > 100){
+                        cooldown += 250;
+                        console.log("cooldown + 250");
+                    }else{
+                        cooldown += 25;
+                        console.log("cooldown + 25");
+                    }
+                }else if(current_call_count <= 90){
+                    
+                    let min = Math.min(...latest_call_counts);
+                    let diff = latest_call_counts[0] - min;
+                    console.log("diff: "+diff);
+                    
+                    if(cooldown > 13000 && diff < 1){
+                        if(res.usage.call_count >= 80){
+                            console.log("cooldown - 20");
+                            cooldown -= 20;
+                        }else{
+                            cooldown -= 75;
+                            console.log("cooldown - 75");
+                        }
+                    }
+                }
+            }
+
+            if(!isNaN(parseInt(res.usage.call_count))){
+                latest_call_counts.unshift(res.usage.call_count);
+            }
+
+            while(latest_call_counts.length > 20){
+                latest_call_counts.pop();
+            }
+
+        }catch(e){
+            log_error(e);
+        }
 
 		if(!res || res.error || !res.hasOwnProperty('engagement') || !res.engagement.hasOwnProperty('reaction_count') || !res.engagement.hasOwnProperty('comment_count') || !res.engagement.hasOwnProperty('share_count') || !res.engagement.hasOwnProperty('comment_plugin_count')) {
 			
@@ -126,10 +176,9 @@ function crawlFacebook(work_id, url, urls){
 			return
 			
 		}else{
-			
 			log_info("");
 			log_info(res);
-			
+            
 			var reaction_count = res.engagement.reaction_count;
 			var comment_count = res.engagement.comment_count;
 			var share_count = res.engagement.share_count;
@@ -278,8 +327,10 @@ function crawlFacebook(work_id, url, urls){
 
 					}
 
+                    setTimeout(startCycle, cooldown);
+                    
 				});
-				
+                
 			}, cooldown);
 			
 		}
@@ -303,6 +354,7 @@ function only_update_lu(work_id){
 		}
 
 		running = false;
+        setTimeout(startCycle, cooldown);
 
 	});
 	
@@ -318,7 +370,6 @@ con.connect(function(err){
 		
 		log_info("\nConnected to MYSQL database.");
 		startCycle();
-		setInterval(startCycle, cooldown*2);
 		
 	}
 

@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.23, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.24, for Linux (x86_64)
 --
 -- Host: localhost    Database: metrics_bot
 -- ------------------------------------------------------
--- Server version	5.7.23-0ubuntu0.16.04.1
+-- Server version	5.7.24-0ubuntu0.16.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -14,25 +14,6 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
---
--- Temporary table structure for view `charts_facebook`
---
-
-DROP TABLE IF EXISTS `charts_facebook`;
-/*!50001 DROP VIEW IF EXISTS `charts_facebook`*/;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-/*!50001 CREATE VIEW `charts_facebook` AS SELECT 
- 1 AS `id`,
- 1 AS `doi`,
- 1 AS `origin`,
- 1 AS `substr(url,1,180)`,
- 1 AS `fb_sum`,
- 1 AS `reaction_count_facebook`,
- 1 AS `share_count_facebook`,
- 1 AS `comment_count_facebook`*/;
-SET character_set_client = @saved_cs_client;
 
 --
 -- Temporary table structure for view `charts_mendeley`
@@ -266,7 +247,26 @@ CREATE TABLE `data_dumps_mendeley` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `work_id` (`work_id`),
   UNIQUE KEY `obj_id` (`obj_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=20509 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=60966 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `data_dumps_mendeley_alt`
+--
+
+DROP TABLE IF EXISTS `data_dumps_mendeley_alt`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `data_dumps_mendeley_alt` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `work_alt_id` int(10) unsigned NOT NULL,
+  `obj_id` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `data` mediumtext COLLATE utf8mb4_unicode_ci,
+  `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `work_id` (`work_alt_id`),
+  UNIQUE KEY `obj_id` (`obj_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=22934 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -285,7 +285,7 @@ CREATE TABLE `data_dumps_reddit` (
   `created` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `work_id` (`work_id`,`hash`)
-) ENGINE=InnoDB AUTO_INCREMENT=123 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=170 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -300,6 +300,7 @@ CREATE TABLE `data_dumps_twitter` (
   `work_id` int(10) unsigned NOT NULL,
   `obj_id` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `data` mediumtext COLLATE utf8mb4_unicode_ci,
+  `search_term` text COLLATE utf8mb4_unicode_ci,
   `type` tinyint(4) DEFAULT NULL,
   `search_url` text COLLATE utf8mb4_unicode_ci,
   `occurred` datetime DEFAULT NULL,
@@ -307,7 +308,30 @@ CREATE TABLE `data_dumps_twitter` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `work_id` (`work_id`,`obj_id`),
   KEY `obj_id` (`obj_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11920 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16886 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `data_dumps_twitter_alt`
+--
+
+DROP TABLE IF EXISTS `data_dumps_twitter_alt`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `data_dumps_twitter_alt` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `work_alt_id` int(10) unsigned NOT NULL,
+  `obj_id` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `data` mediumtext COLLATE utf8mb4_unicode_ci,
+  `search_term` text COLLATE utf8mb4_unicode_ci,
+  `type` tinyint(4) DEFAULT NULL,
+  `search_url` text COLLATE utf8mb4_unicode_ci,
+  `occurred` datetime DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `work_id` (`work_alt_id`,`obj_id`),
+  KEY `obj_id` (`obj_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=257 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -322,10 +346,30 @@ CREATE TABLE `data_dumps_wikipedia` (
   `work_id` int(10) unsigned NOT NULL,
   `wiki` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
   `data` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `query` text COLLATE utf8mb4_unicode_ci,
   `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `wiki` (`wiki`,`work_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1158 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4407 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `data_dumps_wikipedia_alt`
+--
+
+DROP TABLE IF EXISTS `data_dumps_wikipedia_alt`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `data_dumps_wikipedia_alt` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `work_alt_id` int(10) unsigned DEFAULT NULL,
+  `wiki` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `data` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `query` text COLLATE utf8mb4_unicode_ci,
+  `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `wiki` (`wiki`,`work_alt_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=116 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -341,10 +385,11 @@ CREATE TABLE `data_dumps_youtube` (
   `hash` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL,
   `url` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `data` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `query` text COLLATE utf8mb4_unicode_ci,
   `created` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `work_id` (`work_id`,`hash`)
-) ENGINE=InnoDB AUTO_INCREMENT=1755 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2153 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -357,6 +402,29 @@ DROP TABLE IF EXISTS `mb_sys`;
 CREATE TABLE `mb_sys` (
   `sysRunning` tinyint(4) DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `metadata_econStor`
+--
+
+DROP TABLE IF EXISTS `metadata_econStor`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `metadata_econStor` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `work_alt_id` int(10) unsigned NOT NULL,
+  `data` json DEFAULT NULL,
+  `mendeley_match_type` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `work_mendeley` json DEFAULT NULL,
+  `catalog_mendeley` mediumtext COLLATE utf8mb4_unicode_ci,
+  `last_update_mendeley` datetime DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `work_id` (`work_alt_id`),
+  UNIQUE KEY `work_alt_id` (`work_alt_id`),
+  KEY `last_update_mendeley` (`last_update_mendeley`)
+) ENGINE=InnoDB AUTO_INCREMENT=153808 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -565,7 +633,7 @@ CREATE TABLE `urls` (
   `count_youtube` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `work_id` (`work_id`,`hash`)
-) ENGINE=InnoDB AUTO_INCREMENT=4270 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=10582 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -618,6 +686,79 @@ CREATE TABLE `wikipedia` (
   `ar` mediumint(8) unsigned DEFAULT NULL,
   `_ar` datetime DEFAULT NULL,
   PRIMARY KEY (`work_id`),
+  KEY `_en` (`_en`),
+  KEY `_de` (`_de`),
+  KEY `_ceb` (`_ceb`),
+  KEY `_sv` (`_sv`),
+  KEY `_fr` (`_fr`),
+  KEY `_nl` (`_nl`),
+  KEY `_ru` (`_ru`),
+  KEY `_it` (`_it`),
+  KEY `_es` (`_es`),
+  KEY `_pl` (`_pl`),
+  KEY `_war` (`_war`),
+  KEY `_vi` (`_vi`),
+  KEY `_ja` (`_ja`),
+  KEY `_zh` (`_zh`),
+  KEY `_pt` (`_pt`),
+  KEY `_uk` (`_uk`),
+  KEY `_sr` (`_sr`),
+  KEY `_fa` (`_fa`),
+  KEY `_ca` (`_ca`),
+  KEY `_ar` (`_ar`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `wikipedia_alt`
+--
+
+DROP TABLE IF EXISTS `wikipedia_alt`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `wikipedia_alt` (
+  `work_alt_id` int(10) unsigned NOT NULL,
+  `en` mediumint(8) unsigned DEFAULT NULL,
+  `_en` datetime DEFAULT NULL,
+  `de` mediumint(8) unsigned DEFAULT NULL,
+  `_de` datetime DEFAULT NULL,
+  `ceb` mediumint(8) unsigned DEFAULT NULL,
+  `_ceb` datetime DEFAULT NULL,
+  `sv` mediumint(8) unsigned DEFAULT NULL,
+  `_sv` datetime DEFAULT NULL,
+  `fr` mediumint(8) unsigned DEFAULT NULL,
+  `_fr` datetime DEFAULT NULL,
+  `nl` mediumint(8) unsigned DEFAULT NULL,
+  `_nl` datetime DEFAULT NULL,
+  `ru` mediumint(8) unsigned DEFAULT NULL,
+  `_ru` datetime DEFAULT NULL,
+  `it` mediumint(8) unsigned DEFAULT NULL,
+  `_it` datetime DEFAULT NULL,
+  `es` mediumint(8) unsigned DEFAULT NULL,
+  `_es` datetime DEFAULT NULL,
+  `pl` mediumint(8) unsigned DEFAULT NULL,
+  `_pl` datetime DEFAULT NULL,
+  `war` mediumint(8) unsigned DEFAULT NULL,
+  `_war` datetime DEFAULT NULL,
+  `vi` mediumint(8) unsigned DEFAULT NULL,
+  `_vi` datetime DEFAULT NULL,
+  `ja` mediumint(8) unsigned DEFAULT NULL,
+  `_ja` datetime DEFAULT NULL,
+  `zh` mediumint(8) unsigned DEFAULT NULL,
+  `_zh` datetime DEFAULT NULL,
+  `pt` mediumint(8) unsigned DEFAULT NULL,
+  `_pt` datetime DEFAULT NULL,
+  `uk` mediumint(8) unsigned DEFAULT NULL,
+  `_uk` datetime DEFAULT NULL,
+  `sr` mediumint(8) unsigned DEFAULT NULL,
+  `_sr` datetime DEFAULT NULL,
+  `fa` mediumint(8) unsigned DEFAULT NULL,
+  `_fa` datetime DEFAULT NULL,
+  `ca` mediumint(8) unsigned DEFAULT NULL,
+  `_ca` datetime DEFAULT NULL,
+  `ar` mediumint(8) unsigned DEFAULT NULL,
+  `_ar` datetime DEFAULT NULL,
+  PRIMARY KEY (`work_alt_id`),
   KEY `_en` (`_en`),
   KEY `_de` (`_de`),
   KEY `_ceb` (`_ceb`),
@@ -738,7 +879,7 @@ CREATE TABLE `works` (
   KEY `url_crawled_2` (`url_crawled`,`last_update_facebook`),
   KEY `url_crawled_3` (`url_crawled`,`last_update_reddit`),
   KEY `url_crawled_4` (`url_crawled`,`last_update_youtube`)
-) ENGINE=InnoDB AUTO_INCREMENT=131045 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=167586 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -747,7 +888,7 @@ CREATE TABLE `works` (
 /*!50003 SET character_set_results = utf8mb4 */ ;
 /*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`gbv`@`localhost`*/ /*!50003 TRIGGER insert_work AFTER INSERT ON works FOR EACH ROW INSERT INTO wikipedia(work_id) VALUES (NEW.id) */;;
 DELIMITER ;
@@ -757,22 +898,40 @@ DELIMITER ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
--- Final view structure for view `charts_facebook`
+-- Table structure for table `works_alt`
 --
 
-/*!50001 DROP VIEW IF EXISTS `charts_facebook`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8mb4 */;
-/*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`gbv`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `charts_facebook` AS select `works`.`id` AS `id`,`works`.`doi` AS `doi`,`works`.`origin` AS `origin`,substr(`works`.`url`,1,180) AS `substr(url,1,180)`,((`works`.`reaction_count_facebook` + `works`.`share_count_facebook`) + `works`.`comment_count_facebook`) AS `fb_sum`,`works`.`reaction_count_facebook` AS `reaction_count_facebook`,`works`.`share_count_facebook` AS `share_count_facebook`,`works`.`comment_count_facebook` AS `comment_count_facebook` from `works` order by ((`works`.`reaction_count_facebook` + `works`.`share_count_facebook`) + `works`.`comment_count_facebook`) desc */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
+DROP TABLE IF EXISTS `works_alt`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `works_alt` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `type` varchar(100) DEFAULT NULL,
+  `repo` varchar(30) NOT NULL,
+  `local_handle` varchar(256) NOT NULL,
+  `last_fetched_metadata` datetime DEFAULT NULL,
+  `term_1` text,
+  `term_2` text,
+  `term_3` text,
+  `created` datetime DEFAULT CURRENT_TIMESTAMP,
+  `mendeley_match_tried` tinyint(4) NOT NULL DEFAULT '0',
+  `mendeley_id_guess` varchar(100) DEFAULT NULL,
+  `reader_count_mendeley` int(10) unsigned DEFAULT NULL,
+  `group_count_mendeley` int(10) unsigned DEFAULT NULL,
+  `count_twitter_unique` int(10) unsigned NOT NULL DEFAULT '0',
+  `count_twitter_retweets` int(10) unsigned NOT NULL DEFAULT '0',
+  `last_update_mendeley` datetime DEFAULT NULL,
+  `last_update_twitter` datetime DEFAULT NULL,
+  `tries_twitter` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `first_update_twitter` datetime DEFAULT NULL,
+  `highest_id_twitter` varchar(255) DEFAULT NULL,
+  `state_twitter` varchar(30) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `local_handle` (`local_handle`),
+  KEY `last_fetched_metadata` (`last_fetched_metadata`),
+  KEY `mendeley_id_guess` (`mendeley_id_guess`,`last_update_mendeley`)
+) ENGINE=InnoDB AUTO_INCREMENT=153808 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Final view structure for view `charts_mendeley`
@@ -1161,4 +1320,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-10-12  7:29:16
+-- Dump completed on 2019-03-26 11:05:06

@@ -1,7 +1,5 @@
 var exports = module.exports = {};
 
-var config = require('../config.json');
-
 var mysql = require('mysql');
 
 exports.check = function(con, callback){
