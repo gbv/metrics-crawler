@@ -18,6 +18,10 @@ var cooldown = 1100;
 
 var running = false;
 
+var durchgang = 0;
+
+var alt;
+
 var con = mysql.createConnection({
 
 	host: config.db.host,
@@ -121,21 +125,43 @@ function updateToken(doNext){
 	
 }
 
-function mendeley_doi_catalog_search(doi, reader_count_old, group_count_old, accessToken, work_id, doNext){
+function mendeley_doi_catalog_search(doi, reader_count_old, group_count_old, accessToken, work_id, doNext, alt, mendeley_id){
 
-	var doi_esc = encodeURIComponent(doi);
-	
-	var options = {
-	
-		url: 'https://api.mendeley.com/catalog?doi='+doi_esc+'&view=stats',
-      	headers: {
-			
-			"Authorization": 'Bearer '+ accessToken,
-			"Accept":"application/vnd.mendeley-document.1+json"
-			
-		}
+	if(!alt){
 		
-	};
+		var doi_esc = encodeURIComponent(doi);
+		
+		var options = {
+		
+			url: 'https://api.mendeley.com/catalog?doi='+doi_esc+'&view=stats',
+			headers: {
+				
+				"Authorization": 'Bearer '+ accessToken,
+				"Accept":"application/vnd.mendeley-document.1+json"
+				
+			}
+			
+		};
+		
+	}else{
+		
+		var mendeley_id_esc = encodeURIComponent(mendeley_id);
+		
+		var options = {
+		
+			url: 'https://api.mendeley.com/catalog/'+mendeley_id_esc+'?view=stats',
+			headers: {
+				
+				"Authorization": 'Bearer '+ accessToken,
+				"Accept":"application/vnd.mendeley-document.1+json"
+				
+			}
+			
+		};
+		
+	}
+	
+	log_info("url: "+options.url);
 	
 	function callback(err, response, body){
 		if(err){
@@ -151,7 +177,11 @@ function mendeley_doi_catalog_search(doi, reader_count_old, group_count_old, acc
 					running = false;
 					return;
 				}else{
-					doNext(reader_count_old, group_count_old, JSON.parse(body)[0]);		
+					if(!alt){
+						doNext(reader_count_old, group_count_old, JSON.parse(body)[0]);
+					}else{
+						doNext(reader_count_old, group_count_old, JSON.parse(body));
+					}
 				}
 				
 			}catch(e){
@@ -160,8 +190,12 @@ function mendeley_doi_catalog_search(doi, reader_count_old, group_count_old, acc
 				
 				var theTime = new Date();
 				
-				var sql = "UPDATE works SET last_update_mendeley = ? WHERE id = ?";
-
+				if(!alt){
+					var sql = "UPDATE works SET last_update_mendeley = ? WHERE id = ?";
+				}else{
+					var sql = "UPDATE works_alt SET last_update_mendeley = ? WHERE id = ?";
+				}
+				
 				con.query(sql, [theTime, work_id], function(err, results, fields){
 
 					if(err){
@@ -187,7 +221,7 @@ function mendeley_doi_catalog_search(doi, reader_count_old, group_count_old, acc
 	
 }
 
-function result2db(work_id, reader_count_old, group_count_old, result){
+function result2db(work_id, reader_count_old, group_count_old, result, alt){
 	
 	if(result && result.hasOwnProperty('reader_count') && result.hasOwnProperty('group_count')){
 		
@@ -212,7 +246,15 @@ function result2db(work_id, reader_count_old, group_count_old, result){
 		log_info("reader_count: "+reader_count+diff_string_reader_count);
 		log_info("group_count: "+group_count+diff_string_group_count);
 
-		var sql = "UPDATE works SET reader_count_mendeley = ?, group_count_mendeley = ?, last_update_mendeley = ? WHERE id = ?";
+		if(!alt){
+			
+			var sql = "UPDATE works SET reader_count_mendeley = ?, group_count_mendeley = ?, last_update_mendeley = ? WHERE id = ?";
+			
+		}else{
+			
+			var sql = "UPDATE works_alt SET reader_count_mendeley = ?, group_count_mendeley = ?, last_update_mendeley = ? WHERE id = ?";
+			
+		}
 		
 		con.query(sql, [reader_count, group_count, theTime, work_id], function(err, results, fields){
 
@@ -234,10 +276,14 @@ function result2db(work_id, reader_count_old, group_count_old, result){
 				return;
 			}else{
 
-				var sql_dump = "INSERT INTO data_dumps_mendeley (work_id, obj_id, data) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE obj_id = ?, data = ?, created = ?";
-
+				if(!alt){
+					var sql_dump = "INSERT INTO data_dumps_mendeley (work_id, obj_id, data) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE obj_id = ?, data = ?, created = ?";
+				}else{
+					var sql_dump = "INSERT INTO data_dumps_mendeley_alt (work_alt_id, obj_id, data) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE obj_id = ?, data = ?, created = ?";
+				}
+			
 				var result_string = JSON.stringify(result);
-
+				
 				con.query(sql_dump, [work_id, mendeley_id, result_string, mendeley_id, result_string, theTime], function(err, results, fields){
 					if(err){
 						log_error(err);
@@ -255,8 +301,12 @@ function result2db(work_id, reader_count_old, group_count_old, result){
 		log_info("API ERROR: unexpected data structure");
 		log_info(result);
 		
-		var sql = "UPDATE works SET  last_update_mendeley = ? WHERE id = ?";
-
+		if(!alt){
+			var sql = "UPDATE works SET last_update_mendeley = ? WHERE id = ?";
+		}else{
+			var sql = "UPDATE works_alt SET last_update_mendeley = ? WHERE id = ?";
+		}
+		
 		var theTime = new Date();
 		
 		con.query(sql, [theTime, work_id], function(err, results, fields){
@@ -284,9 +334,29 @@ function startCycle(){
 	sysRunning.check(con, function(shouldRun){
 		
 		if(shouldRun){
+			
+			if([0].includes(durchgang)){
+				alt = false;
+			}else{
+				alt = true;
+			}
+			
+			log_info("======================================================================================================\n");
+			log_info("Durchgang: "+durchgang);
+			log_info("alt: "+alt);
+			
+			if(durchgang > 0){
+				durchgang = 0;
+			}else{
+				durchgang += 1;
+			}
+			
+			if(!alt){
+				var sql = "SELECT id, doi, reader_count_mendeley, group_count_mendeley FROM works ORDER BY last_update_mendeley ASC LIMIT 1";
+			}else{
+				var sql = "SELECT id, mendeley_id_guess, reader_count_mendeley, group_count_mendeley FROM works_alt WHERE mendeley_id_guess IS NOT NULL ORDER BY last_update_mendeley ASC LIMIT 1";
+			}
 	
-			var sql = "SELECT id, doi, reader_count_mendeley, group_count_mendeley FROM works ORDER BY last_update_mendeley ASC LIMIT 1";
-
 			con.query(sql, function(err, results, fields){
 
 				if(err){
@@ -297,21 +367,35 @@ function startCycle(){
 				}else{
 
 					var work_id = results[0].id;
-					var doi = results[0].doi;
-
+					
+					var doi, mendeley_id;
+					
+					if(!alt){
+						doi = results[0].doi;
+					
+						log_info("");
+						log_info("==========================================================================================================\n");
+						log_info("work_id: "+work_id);
+						log_info("doi: "+doi);
+					
+					}else{
+						mendeley_id = results[0].mendeley_id_guess;
+						log_info("");
+						log_info("==========================================================================================================\n");
+						log_info("work_alt_id: "+work_id);
+						log_info("mendeley id: "+mendeley_id);
+					}
+					
 					var reader_count = results[0].reader_count_mendeley;
 					var group_count = results[0].group_count_mendeley;
 
-					log_info("");
-					log_info("==========================================================================================================\n");
-					log_info("work_id: "+work_id);
-					log_info("doi: "+doi);
+
 
 					mendeley_doi_catalog_search(doi, reader_count, group_count, tokenObj.access_token, work_id, function(reader_count_old, group_count_old, result){
 
-						result2db(work_id, reader_count_old, group_count_old, result);
+						result2db(work_id, reader_count_old, group_count_old, result, alt);
 
-					});
+					}, alt, mendeley_id);
 
 
 				}

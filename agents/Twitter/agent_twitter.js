@@ -24,6 +24,10 @@ var wait_till = null;
 
 var exit_signal = false;
 
+var alt = true;
+
+var durchgang = 0;
+
 // set log levels
 var log_level = {info: false, errors: true};
 
@@ -60,6 +64,24 @@ function log_info(txt){
 	if(log_level.info){
 		console.log(txt);
 	}
+	
+}
+
+function stripURL(url){
+	
+	if(url !== "" && url !== null){
+		if(url.substr(0,8) == "https://"){
+			url = url.substr(8);
+		}else if(url.substr(0,7) == "http://"){
+			url = url.substr(7);
+		}
+
+		if(url.substr(0,4) == "www."){
+			url = url.substr(4);
+		}
+	}
+	
+	return url;
 	
 }
 
@@ -143,8 +165,28 @@ function crawlTwitter(){
 			}else if(wait_till != null){
 				wait_till = null;
 			}
-
-			var sql = "SELECT id, doi, url, first_update_twitter, IFNULL(tries_twitter,0) as tries_twitter, highest_id_twitter FROM works WHERE url_crawled = 1 ORDER BY last_update_twitter ASC LIMIT 1";
+			
+			if([0,1,2].includes(durchgang)){
+				alt = false;
+			}else{
+				alt = true;
+			}
+			
+			log_info("======================================================================================================\n");
+			log_info("Durchgang: "+durchgang);
+			log_info("alt: "+alt);
+			
+			if(durchgang >= 9){
+				durchgang = 0;
+			}else{
+				durchgang += 1;
+			}
+			
+			if(!alt){
+				var sql = "SELECT id, doi, url, first_update_twitter, IFNULL(tries_twitter,0) as tries_twitter, highest_id_twitter FROM works WHERE url_crawled = 1 ORDER BY last_update_twitter ASC LIMIT 1";
+			}else{
+				var sql = "SELECT id, term_1, term_2, term_3, first_update_twitter, IFNULL(tries_twitter,0) as tries_twitter, highest_id_twitter FROM works_alt ORDER BY last_update_twitter ASC LIMIT 1";
+			}
 
 			con.query(sql, function(err, results, fields){
 
@@ -152,38 +194,87 @@ function crawlTwitter(){
 					log_error(err);
 					running = false;
 				}else{
+					
 					var id = results[0].id;
-					var doi = results[0].doi;
-					var url = results[0].url;
+					
+					if(!alt){
+						var doi = results[0].doi;
+						var url = stripURL(results[0].url);
+					}
 
 					var tries_twitter = parseInt(results[0].tries_twitter);
-
 					var first_update_twitter = results[0].first_update_twitter;
 
-					if(url !== "" && url !== null){
-						if(url.substr(0,8) == "https://"){
-							url = url.substr(8);
-						}else if(url.substr(0,7) == "http://"){
-							url = url.substr(7);
-						}
-
-						if(url.substr(0,4) == "www."){
-							url = url.substr(4);
-						}
-					}
-
 					var highest_id = results[0].highest_id_twitter || 0;
-
-					log_info("======================================================================================================\n");
+					
+					var query = "";
+					
 					log_info("work id: "+id);
 
-					if(url == "" || url === null){
-						var query = doi;
+					if(!alt){
+						
+						if(url == "" || url === null){
+							query = doi;
+						}else{
+							query = '"'+url+'"OR"'+doi+'"';
+						}
+						
 					}else{
-						var query = '"'+url+'"OR"'+doi+'"';
+						
+						var term_1 = stripURL(results[0].term_1);
+						var term_2 = stripURL(results[0].term_2);
+						var term_3 = stripURL(results[0].term_3);
+						
+						if(!term_1){
+							throw 'term_1 must be a not-empty string';
+						}
+						
+						if(term_2){
+							
+							if(term_3){
+								
+								query = '"'+term_1+'"OR"'+term_2+'"OR"'+term_3+'"';
+								
+							}else{
+								
+								query = '"'+term_1+'"OR"'+term_2+'"';
+								
+							}
+							
+						}else{
+							query = term_1;
+						}
+						
 					}
+					
+					if(query.length > 450){
+						log_info("Query too long: "+query);
+						
+						let theTime = new Date();
+						
+						if(!alt){
+							sql = "UPDATE works SET last_update_twitter = ? WHERE id = ?";
+						}else{
+							sql = "UPDATE works_alt SET last_update_twitter = ? WHERE id = ?";
+						}
+						
+						var values = [theTime, id];
 
+						con.query(sql, values, function(err, results, fields){
+
+							if(err){
+								log_error(err);
+							}
+
+							running = false;
+
+						});
+						
+						return
+							
+					}
 					log_info("query: "+query);
+					log_info("query length: "+query.length);
 
 					client.get('search/tweets', {q: query, result_type: "recent", count: 100, since_id: highest_id, include_entities: true, tweet_mode: 'extended'}, function(err, tweets, response){
 
@@ -198,7 +289,7 @@ function crawlTwitter(){
 						if(err && err instanceof Array && err[0].hasOwnProperty('code')){
 
 							log_error(err);
-
+							
 							var errCode = err[0].code;
 
 							// handle rate limit error
@@ -206,8 +297,12 @@ function crawlTwitter(){
 								running = false;
 								return
 							}
-
-							var sql = "SELECT last_update_twitter FROM works WHERE url_crawled = 1 ORDER BY last_update_twitter ASC LIMIT 1 OFFSET 100;";
+							
+							if(!alt){
+								var sql = "SELECT last_update_twitter FROM works WHERE url_crawled = 1 ORDER BY last_update_twitter ASC LIMIT 1 OFFSET 100;";
+							}else{	
+								var sql = "SELECT last_update_twitter FROM works_alt ORDER BY last_update_twitter ASC LIMIT 1 OFFSET 100;";
+							}
 
 							con.query(sql, null, function(err, results, fields){
 
@@ -220,8 +315,12 @@ function crawlTwitter(){
 
 										var theTime = new Date();
 
-										sql = "UPDATE works SET last_update_twitter = ?, tries_twitter = 0, state_twitter = ? WHERE id = ?";
-
+										if(!alt){
+											sql = "UPDATE works SET last_update_twitter = ?, tries_twitter = 0, state_twitter = ? WHERE id = ?";
+										}else{
+											sql = "UPDATE works_alt SET last_update_twitter = ?, tries_twitter = 0, state_twitter = ? WHERE id = ?";
+										}
+										
 										var values = [theTime, 'TwitterErr: '+errCode, id];
 
 										con.query(sql, values, function(err, results, fields){
@@ -238,8 +337,11 @@ function crawlTwitter(){
 
 										var tries_new = tries_twitter + 1;
 
-										sql = "UPDATE works SET last_update_twitter = ?, tries_twitter = ?, state_twitter = ? WHERE id = ?";
-
+										if(!alt){
+											sql = "UPDATE works SET last_update_twitter = ?, tries_twitter = ?, state_twitter = ? WHERE id = ?";
+										}else{
+											sql = "UPDATE works_alt SET last_update_twitter = ?, tries_twitter = ?, state_twitter = ? WHERE id = ?";
+										}
 										var values = [new_lu, tries_new, 'TwitterErr: '+errCode, id];
 
 										con.query(sql, values, function(err, results, fields){
@@ -263,8 +365,12 @@ function crawlTwitter(){
 						}else if(err){
 
 							log_error(err);
-
-							var sql = "SELECT last_update_twitter FROM works WHERE url_crawled = 1 ORDER BY last_update_twitter ASC LIMIT 1 OFFSET 100;";
+							
+							if(!alt){
+								var sql = "SELECT last_update_twitter FROM works WHERE url_crawled = 1 ORDER BY last_update_twitter ASC LIMIT 1 OFFSET 100;";
+							}else{
+								var sql = "SELECT last_update_twitter FROM works_alt ORDER BY last_update_twitter ASC LIMIT 1 OFFSET 100;";
+							}
 
 							con.query(sql, null, function(err, results, fields){
 
@@ -277,8 +383,12 @@ function crawlTwitter(){
 
 										var theTime = new Date();
 
-										sql = "UPDATE works SET last_update_twitter = ?, tries_twitter = 0, state_twitter = ? WHERE id = ?";
-
+										if(!alt){
+											sql = "UPDATE works SET last_update_twitter = ?, tries_twitter = 0, state_twitter = ? WHERE id = ?";
+										}else{
+											sql = "UPDATE works_alt SET last_update_twitter = ?, tries_twitter = 0, state_twitter = ? WHERE id = ?";
+										}
+										
 										var values = [theTime, 'TwitterErr: unknown', id];
 
 										con.query(sql, values, function(err, results, fields){
@@ -295,8 +405,12 @@ function crawlTwitter(){
 
 										var tries_new = tries_twitter + 1;
 
-										sql = "UPDATE works SET last_update_twitter = ?, tries_twitter = ?, state_twitter = ? WHERE id = ?";
-
+										if(!alt){
+											sql = "UPDATE works SET last_update_twitter = ?, tries_twitter = ?, state_twitter = ? WHERE id = ?";
+										}else{
+											sql = "UPDATE works_alt SET last_update_twitter = ?, tries_twitter = ?, state_twitter = ? WHERE id = ?";
+										}
+										
 										var values = [new_lu, tries_new, 'TwitterErr: unknown', id];
 
 										con.query(sql, values, function(err, results, fields){
@@ -318,7 +432,7 @@ function crawlTwitter(){
 							return
 
 						}
-
+						
 						var unique_count = 0;
 						var retweet_count = 0;
 
@@ -381,8 +495,11 @@ function crawlTwitter(){
 
 								}
 
-								var sql_ddump = "INSERT INTO data_dumps_twitter (work_id, obj_id, data, search_term, type, search_url, occurred) VALUES ?";
-
+								if(!alt){
+									var sql_ddump = "INSERT INTO data_dumps_twitter (work_id, obj_id, data, search_term, type, search_url, occurred) VALUES ?";
+								}else{
+									var sql_ddump = "INSERT INTO data_dumps_twitter_alt (work_alt_id, obj_id, data, search_term, type, search_url, occurred) VALUES ?";
+								}
 								con.query(sql_ddump, [insert_data], function(err, results, fields){
 
 									if(err){
@@ -401,13 +518,22 @@ function crawlTwitter(){
 								if(first_update_twitter == null){
 
 									var options = [unique_count, retweet_count, theTime, theTime, tweets.search_metadata.max_id_str, id];
-									var sql = "UPDATE works SET state_twitter = NULL, count_twitter_unique = count_twitter_unique + ?, count_twitter_retweets = count_twitter_retweets + ?, last_update_twitter = ?, tries_twitter = 0, first_update_twitter = ?, highest_id_twitter = ? WHERE id = ?";
-
+									
+									if(!alt){
+										sql = "UPDATE works SET state_twitter = NULL, count_twitter_unique = count_twitter_unique + ?, count_twitter_retweets = count_twitter_retweets + ?, last_update_twitter = ?, tries_twitter = 0, first_update_twitter = ?, highest_id_twitter = ? WHERE id = ?";
+									}else{
+										sql = "UPDATE works_alt SET state_twitter = NULL, count_twitter_unique = count_twitter_unique + ?, count_twitter_retweets = count_twitter_retweets + ?, last_update_twitter = ?, tries_twitter = 0, first_update_twitter = ?, highest_id_twitter = ? WHERE id = ?";
+									}
+									
 								}else{
 
 									var options = [unique_count, retweet_count, theTime, tweets.search_metadata.max_id_str, id];
-									var sql = "UPDATE works SET state_twitter = NULL, count_twitter_unique = count_twitter_unique + ?, count_twitter_retweets = count_twitter_retweets + ?, last_update_twitter = ?, tries_twitter = 0, highest_id_twitter = ? WHERE id = ?";
-
+									
+									if(!alt){
+										sql = "UPDATE works SET state_twitter = NULL, count_twitter_unique = count_twitter_unique + ?, count_twitter_retweets = count_twitter_retweets + ?, last_update_twitter = ?, tries_twitter = 0, highest_id_twitter = ? WHERE id = ?";
+									}else{
+										sql = "UPDATE works_alt SET state_twitter = NULL, count_twitter_unique = count_twitter_unique + ?, count_twitter_retweets = count_twitter_retweets + ?, last_update_twitter = ?, tries_twitter = 0, highest_id_twitter = ? WHERE id = ?";
+									}
 								}
 
 							}else{
@@ -415,14 +541,23 @@ function crawlTwitter(){
 								if(first_update_twitter == null){
 
 									var options = [theTime, theTime, tweets.search_metadata.max_id_str, id];
-									var sql = "UPDATE works SET state_twitter = NULL, last_update_twitter = ?, tries_twitter = 0, first_update_twitter = ?, highest_id_twitter = ? WHERE id = ?";
-
+									
+									if(!alt){
+										sql = "UPDATE works SET state_twitter = NULL, last_update_twitter = ?, tries_twitter = 0, first_update_twitter = ?, highest_id_twitter = ? WHERE id = ?";
+									}else{
+										sql = "UPDATE works_alt SET state_twitter = NULL, last_update_twitter = ?, tries_twitter = 0, first_update_twitter = ?, highest_id_twitter = ? WHERE id = ?";
+									}
 
 								}else{
 
 									var options = [theTime, tweets.search_metadata.max_id_str, id];
-									var sql = "UPDATE works SET state_twitter = NULL, last_update_twitter = ?, tries_twitter = 0, highest_id_twitter = ? WHERE id = ?";
-
+									
+									if(!alt){
+										sql = "UPDATE works SET state_twitter = NULL, last_update_twitter = ?, tries_twitter = 0, highest_id_twitter = ? WHERE id = ?";
+									}else{
+										sql = "UPDATE works_alt SET state_twitter = NULL, last_update_twitter = ?, tries_twitter = 0, highest_id_twitter = ? WHERE id = ?";
+									}
+									
 								}
 
 							}

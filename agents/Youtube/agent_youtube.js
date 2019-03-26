@@ -158,7 +158,7 @@ function crawl_youtube(work_id, url, urls){
 					var count_youtube = parsed.pageInfo.totalResults;
 
 					log_info("\ncount_youtube: "+count_youtube);
-					
+					var query4db = '/v3/search?part=snippet&maxResults=50&q='+q_esc;
 					if(count_youtube != null){
 						
 						if(count_youtube > 0){
@@ -194,7 +194,7 @@ function crawl_youtube(work_id, url, urls){
 									var npt = saveObj.nextPageToken;
 									
 									let options = {
-	
+				
 										// order = date nicht möglich, da sonst keine items gesendet
 										url: 'https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q='+q_esc+'&pageToken='+npt+'&key='+youtube_api_key,
 										headers: {
@@ -245,10 +245,11 @@ function crawl_youtube(work_id, url, urls){
 										if(results.length > 0){
 
 											var dump_id = results[0].id;
+											var theTime = new Date();
 
-											let sql = "UPDATE data_dumps_youtube SET data = ? WHERE id = ?";
+											let sql = "UPDATE data_dumps_youtube SET data = ?, query = ?, created = ? WHERE id = ?";
 
-											con.query(sql, [saveData, dump_id], function(err, results, fields){
+											con.query(sql, [saveData, query4db, theTime, dump_id], function(err, results, fields){
 
 												if(err){
 													log_error(err);
@@ -261,9 +262,9 @@ function crawl_youtube(work_id, url, urls){
 
 										}else{
 
-											let sql = "INSERT INTO data_dumps_youtube (work_id, hash, url, data) VALUES (?,?,?,?)";
+											let sql = "INSERT INTO data_dumps_youtube (work_id, hash, url, data, query) VALUES (?,?,?,?,?)";
 
-											con.query(sql, [work_id, url_md5_ss16, url_no_prot, saveData], function(err, results, fields){
+											con.query(sql, [work_id, url_md5_ss16, url_no_prot, saveData, query4db], function(err, results, fields){
 
 												if(err){
 													log_error(err);

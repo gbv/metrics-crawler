@@ -380,7 +380,12 @@ function crawl(id, doi, url, url_old){
 
 					}
 
-				}).catch(function(e){log_error(e);running = false;});
+				}).catch(function(e){
+                    log_error("BROWSER COULD NOT FETCH URL");
+                    log_error(e);running = false;
+                    theTime = new Date();
+                    only_update_lu(theTime, id);
+                });
 		
 		}).catch(function(e){log_error(e);running = false;});
 		
