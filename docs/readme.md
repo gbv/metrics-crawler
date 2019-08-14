@@ -28,6 +28,11 @@ Project website: https://metrics-project.net/
 
 ## Using the Bot
 
+- import data
+	- works identified by doi: insert into table 'works', you must fill column 'doi' with doi like 10.xxxxxxx, you can fill the work type into the 'type' column, you can fill the origin of the work (for example the repository it is listed in) into the column 'origin'; dot not fill into any other columns
+	- works identified by repository handles: insert into table 'works_alt', you must fill column 'local_handle' with the repository handle, you must fill column 'repo' with the repo the work is listed in, you must fill column 'term_1' (with a search term like repository landing page url) if you want to crawl twitter - you can add more terms in 'term_2' and 'term_2', do not fill into any other columns
+		
+
 - use the following files in /agents (with `node {filename}`):
 	- start_all.js (start bot)
 	- end_all.js (stop bot)
