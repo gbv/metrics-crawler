@@ -16,6 +16,6 @@
         "request": "^2.83.0",
         "selenium-webdriver": "^4.0.0-alpha.1",
         "twitter": "^1.7.1",
-        "url-parse": "^1.4.7"
+        "url-parse": "^1.5.8"
     }
 }
